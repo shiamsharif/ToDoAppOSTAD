@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}My Tasks{% endblock %}
+
+{% block content %}
+<h2>My Tasks</h2>
+
+<form method="get" class="row mb-3">
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
+            <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Completed</option>
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+        </select>
+    </div>
+    <div class="col-md-3">
+        <select name="category" class="form-select">
+            <option value="all" {% if category_filter == 'all' %}selected{% endif %}>All Categories</option>
+            <option value="work" {% if category_filter == 'work' %}selected{% endif %}>Work</option>
+            <option value="personal" {% if category_filter == 'personal' %}selected{% endif %}>Personal</option>
+            <option value="other" {% if category_filter == 'other' %}selected{% endif %}>Other</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button class="btn btn-outline-primary" type="submit">Filter</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Category</th>
+            <th>Due</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for task in tasks %}
+        <tr>
+            <td><a href="{% url 'task_detail' task.pk %}">{{ task.title }}</a></td>
+            <td>{{ task.status }}</td>
+            <td>{{ task.category }}</td>
+            <td>{{ task.due_date }} {{ task.due_time }}</td>
+            <td>
+                {% if not task.is_completed %}
+                    <a href="{% url 'task_complete' task.pk %}" class="btn btn-sm btn-success">Mark Done</a>
+                {% endif %}
+                <a href="{% url 'task_delete' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+    {% empty %}
+        <tr><td colspan="5">No tasks available.</td></tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

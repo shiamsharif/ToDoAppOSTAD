@@ -123,6 +123,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+LOGIN_REDIRECT_URL = '/'  # Redirect to task list after login
+LOGOUT_REDIRECT_URL = '/'  # Redirect to login page after logout
+LOGIN_URL = 'login/'  # URL for the login page
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

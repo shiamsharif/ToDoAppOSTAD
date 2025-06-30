@@ -7,7 +7,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login
 
 @login_required
-def todo_list(request):
+def task_list(request):
     status_filter = request.GET.get('status', 'all')
     category_filter = request.GET.get('category', 'all')
     tasks = ToDo.objects.filter(user=request.user)
@@ -21,7 +21,7 @@ def todo_list(request):
     complted_tasks = tasks.filter(is_completed=True)
     pending_tasks = tasks.filter(is_completed=False)
     
-    return render(request, 'todo/todo_list.html', {
+    return render(request, 'task_list.html', {
         'tasks': tasks,
         'completed_tasks': complted_tasks,
         'pending_tasks': pending_tasks,
@@ -39,32 +39,33 @@ def task_create(request):
             todo.user = request.user
             todo.save()
             messages.success(request, 'Task created successfully!')
-            return redirect('todo_list')
+            return redirect('task_create')
     else:
         form = ToDoForm()
-    return render(request, 'todo/task_form.html', {'form': form})
+    return render(request, 'task_form.html', {'form': form})
 
 
 @login_required
 def task_detail(request, pk):
     task = get_object_or_404(ToDo, pk=pk, user=request.user)
     messages.success(request, 'Task Detail view successfully!')
-    return render(request, 'todo/task_detail.html', {'task': task})
+    return render(request, 'task_detail.html', {'task': task})
 
 @login_required
 def task_delete(request, pk):
     task = get_object_or_404(ToDo, pk=pk, user=request.user)
     task.delete()
     messages.success(request, 'Task deleted successfully!')    
-    return redirect('todo_list')
+    return redirect('task_list')
 
 @login_required
 def task_make_completed(request, pk):
     task = get_object_or_404(ToDo, pk=pk, user=request.user)
     task.is_completed = True
+    task.status = 'completed' # Update status to 'completed'
     task.save()
     messages.success(request, 'Task marked as completed!')
-    return redirect('todo_list')
+    return redirect('task_list')
 
 #user registration and login
 from django.contrib.auth import authenticate, login
@@ -86,14 +87,14 @@ def register(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Welcome {username}!')
-                return redirect('todo_list')
+                return redirect('task_list')
             else:
                 messages.error(request, "Authentication failed. Please log in manually.")
                 return redirect('login')
     else:
         form = UserCreationForm()
     
-    return render(request, 'registration/register.html', {'form': form})
+    return render(request, 'register.html', {'form': form})
 
 
 
@@ -105,7 +106,7 @@ def register(request):
 #         if user is not None:
 #             login(request, user)
 #             messages.success(request, f'Welcome back {username}!')
-#             return redirect('todo_list')
+#             return redirect('task_list')
 #         else:
 #             messages.error(request, 'Invalid username or password.')
 #     return render(request, 'registration/login.html')
