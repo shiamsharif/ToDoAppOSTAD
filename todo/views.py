@@ -6,6 +6,7 @@ from .forms import ToDoForm
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login
 
+@login_required
 def todo_list(request):
     status_filter = request.GET.get('status', 'all')
     category_filter = request.GET.get('category', 'all')
@@ -66,18 +67,45 @@ def task_make_completed(request, pk):
     return redirect('todo_list')
 
 #user registration and login
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render, redirect
+
 def register(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
-        if  form.is_valid():
+        if form.is_valid():
             form.save()
             messages.success(request, 'User registered successfully!')
+
             username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
+            password = form.cleaned_data.get('password1')  # Correct field
+
             user = authenticate(username=username, password=password)
-            login(request, user)
-            messages.success(request, f'Welcome {username}!')
-            return redirect('todo_list')
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'Welcome {username}!')
+                return redirect('todo_list')
+            else:
+                messages.error(request, "Authentication failed. Please log in manually.")
+                return redirect('login')
     else:
         form = UserCreationForm()
+    
     return render(request, 'registration/register.html', {'form': form})
+
+
+
+# def login_view(request):
+#     if request.method == 'POST':
+#         username = request.POST.get('username')
+#         password = request.POST.get('password')
+#         user = authenticate(username=username, password=password)
+#         if user is not None:
+#             login(request, user)
+#             messages.success(request, f'Welcome back {username}!')
+#             return redirect('todo_list')
+#         else:
+#             messages.error(request, 'Invalid username or password.')
+#     return render(request, 'registration/login.html')
